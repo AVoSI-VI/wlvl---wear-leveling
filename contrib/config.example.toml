@@ -1,0 +1,41 @@
+# wlvl daemon configuration. Install as /etc/wlvl/config.toml.
+#
+# Every key has a default; only `uuid` (or `path`) is required per device.
+# Volume UUIDs are printed by `wlvl format` and listed by `wlvl list`.
+
+[global]
+# Seconds between timer-driven metadata commits (wear counters). FLUSH requests
+# from the filesystem and chunk migrations also trigger commits.
+metadata_flush_interval_secs = 30
+# Unix socket answered by the daemon for `wlvl status`.
+control_socket = "/run/wlvl/control.sock"
+
+[[device]]
+# Replace with the UUID printed by `wlvl format`.
+uuid = "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+name = "wlvl-sdcard"
+# How often the wear policy is evaluated.
+check_interval_secs = 60
+# Minimum spacing between two chunk migrations.
+rotate_interval_secs = 600
+# Migrate only when (max - min) chunk write count exceeds this.
+wear_delta_threshold = 50
+# Read back one in every N written segments to catch silent corruption (0 = off).
+verify_every = 0
+# Expected program/erase cycles of the flash; drives the health estimate.
+expected_pe_cycles = 3000
+# Chunks with this many I/O errors are evacuated and retired.
+retire_threshold = 3
+# Query smartctl / mmc sysfs in `wlvl status`.
+hardware_health = true
+# Set to false to serve I/O without ever migrating chunks.
+wear_leveling = true
+# ublk queue geometry.
+queues = 1
+depth = 64
+io_buf_bytes = 524288
+
+# A device can also be addressed by a stable path instead of a UUID.
+# [[device]]
+# path = "/dev/disk/by-id/usb-Generic_Flash_Disk_0123456789-0:0"
+# name = "usb-stick"

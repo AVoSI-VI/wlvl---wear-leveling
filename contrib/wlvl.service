@@ -1,0 +1,24 @@
+[Unit]
+Description=wlvl wear-leveling block devices (ublk)
+Documentation=file:///usr/share/doc/wlvl/README.md
+After=local-fs-pre.target systemd-udev-settle.service
+Before=local-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=simple
+ExecStartPre=/sbin/modprobe ublk_drv
+ExecStart=/usr/local/bin/wlvl daemon --config /etc/wlvl/config.toml
+# SIGTERM -> final metadata commit, ublk devices deleted.
+KillSignal=SIGTERM
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=5
+RuntimeDirectory=wlvl
+RuntimeDirectoryMode=0755
+# Needs CAP_SYS_ADMIN for /dev/ublk-control and unshare(CLONE_NEWNS).
+# wlvl already unshares its mount namespace itself; PrivateMounts would also work.
+Environment=RUST_LOG=info
+
+[Install]
+WantedBy=multi-user.target
